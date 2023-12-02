@@ -50,6 +50,20 @@ module part1:
 
 // Part Two
 
+/*
+  Create a `Pattern` for each considered sequence of characters.  Then
+  repeatedly take the regular expression derivative of the each pattern until
+  there is one pattern that completely matches.  If no patterns completely
+  match then restart the search at the character after the first matched in
+  the pattern.
+
+  A possible good optimization would be instead of restarting the search,
+  appending fresh patterns to the candidates after each step.
+
+  Another optimization (for allocation) would be to specifying string slices
+  for Pattern instead of using `String.substring`.
+*/
+
 class Pattern(string :: String, value :: NonnegInt):
   method derivative(ch :: Char) :: Pattern || False:
     if this.string[0] == ch
