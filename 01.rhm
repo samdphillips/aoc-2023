@@ -1,16 +1,8 @@
 #lang rhombus/static/and_meta
 
 import:
-  lib("racket/base.rkt"):
-    rename:
-      #{in-lines} as in_lines
-  lib("racket/port.rkt")
   "advent_of_code.rhm" as aoc
-
-
-expr.macro 'call_with_input_string $s:
-              $body':
-  'port.#{call-with-input-string}($s, $body)'
+  "util.rhm"
 
 fun find_num(s :: String, i :: NonnegInt, step :: Int):
   let ch = s[i]
@@ -33,8 +25,7 @@ check:
   char_to_value(#{#\0}) ~is 0
   char_to_value(#{#\9}) ~is 9
 
-def test_input1:
-  @base.apply(String.append){
+@util.example_input(test_input1){
 1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
@@ -42,21 +33,19 @@ treb7uchet
 }
 
 fun run1(input):
-  call_with_input_string input:
+  util.call_with_input_string input:
     fun (inp :: Port.Input):
-      use_dynamic
       for values(sum = 0):
-        each l: base.in_lines(inp)
-        use_static
-        let s :: String = (l :~ ReadableString).to_string()
-        let first = find_num(s, 0, 1)
-        let last = find_num(s, s.length() - 1, -1)
+        each a_line :~ String: util.in_lines(inp)
+        let first = find_num(a_line, 0, 1)
+        let last = find_num(a_line, a_line.length() - 1, -1)
         char_to_value(first) * 10 + char_to_value(last) + sum
 
 check:
   run1(test_input1) ~is 142
 
-// run1(aoc.fetch_input(aoc.find_session(), 2023, 1))
+module part1:
+  run1(aoc.fetch_input(aoc.find_session(), 2023, 1))
 
 
 // Part Two
@@ -94,8 +83,7 @@ check:
                        Pattern("xyz", 3)], #{#\a})
   ~is [Pattern("bc", 0), Pattern("bd", 1)]
 
-def test_input2:
-  @base.apply(String.append){
+@util.example_input(test_input2){
 two1nine
 eightwothree
 abcone2threexyz
@@ -132,16 +120,15 @@ fun find_last_num(s :: String) :: NonnegInt:
   match1(num_pats, z, z)
 
 fun run2(input):
-  call_with_input_string input:
+  util.call_with_input_string input:
     fun (inp :: Port.Input):
-      use_dynamic
       for values(sum = 0):
-        each l: base.in_lines(inp)
-        use_static
-        let s :: String = (l :~ ReadableString).to_string()
-        let first = find_first_num(s)
-        let last = find_last_num(s)
+        each a_line :~ String: util.in_lines(inp)
+        let first = find_first_num(a_line)
+        let last = find_last_num(a_line)
         first * 10 + last + sum
 
 check run2(test_input2) ~is 281
-run2(aoc.fetch_input(aoc.find_session(), 2023, 1))
+
+module part2:
+  run2(aoc.fetch_input(aoc.find_session(), 2023, 1))
