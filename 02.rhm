@@ -75,7 +75,9 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 }
 
 check:
-  parse_line("Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red")
+  def input:
+    "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red"
+  parse_line(input)
   ~is Game(4, [{"red": 3, "green": 1, "blue": 6},
                {"red": 6, "green": 3},
                {"red": 14, "green": 3, "blue": 15}])
@@ -99,7 +101,9 @@ module part1:
   run1(aoc.fetch_input(aoc.find_session(), 2023, 2))
 
 check:
-  def g = parse_line("Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red")
+  def input:
+    "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red"
+  def g = parse_line(input)
   g.power()
   ~is 630
 
