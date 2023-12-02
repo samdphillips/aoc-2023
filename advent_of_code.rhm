@@ -12,5 +12,5 @@ export:
   fetch_input
 
 fun fetch_input(session, year, day):
-  let s :: ReadableString = aoc.fetch_input(session, year, day)
+  let s :: ReadableString = aoc.fetch_input(session, year, day, ~cache: #true)
   s.to_string()
