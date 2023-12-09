@@ -1,8 +1,8 @@
 #lang rhombus/static
 
 import:
-  "advent_of_code.rhm" as aoc
-  "util.rhm"
+  "util/advent_of_code.rhm" as aoc
+  "util/misc.rhm" as util
 
 fun find_num(s :: String, i :: NonnegInt, step :: Int):
   let ch = s[i]

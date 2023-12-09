@@ -2,8 +2,8 @@
 
 import:
   lib("racket/base.rkt")
-  "advent_of_code.rhm" as aoc
-  "util.rhm"
+  "util/advent_of_code.rhm" as aoc
+  "util/misc.rhm" as util
 
 def lex_pat:
   base.pregexp("^\\s+|Game|\\d+|[:,]|;|red|green|blue")

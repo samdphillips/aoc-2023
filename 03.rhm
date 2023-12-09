@@ -1,8 +1,8 @@
 #lang rhombus/static
 
 import:
-  "advent_of_code.rhm" as aoc
-  "util.rhm"
+  "util/advent_of_code.rhm" as aoc
+  "util/misc.rhm" as util
 
 @util.example_input(test_input){
 467..114..
