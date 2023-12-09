@@ -139,3 +139,30 @@ check:
 
 module part1:
   run1(aoc.fetch_input(aoc.find_session(), 2023, 3))
+
+fun run2(input :: String):
+  def s :: Schematic = Schematic.from_string(input)
+  def gears :~ Set.of(Posn):
+    for Set:
+      each p: s.parts
+      keep_when s.ref(p) == #{#\*}
+      p
+  for values(sum = 0):
+    each gear_p: gears
+    def parts :~ Set.of(Span):
+      for Set:
+        each n: gear_p.neighbors_8()
+        keep_when Char.is_numeric(s.ref(n))
+        Span(s, n)
+    keep_when parts.length() == 2
+    def [part0, part1]:
+      for List:
+        each p: parts
+        p.to_number(s)
+    part0 * part1 + sum
+
+check:
+  run2(test_input) ~is 467835
+
+module part2:
+  run2(aoc.fetch_input(aoc.find_session(), 2023, 3))
