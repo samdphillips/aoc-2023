@@ -1,0 +1,146 @@
+#lang rhombus/static
+
+import:
+  lib("racket/base.rkt")
+  "util/advent_of_code.rhm" as aoc
+  "util/misc.rhm" as util
+  "util/parsec.rhm" as p
+
+@util.example_input(test_input){
+seeds: 79 14 55 13
+
+seed-to-soil map:
+50 98 2
+52 50 48
+
+soil-to-fertilizer map:
+0 15 37
+37 52 2
+39 0 15
+
+fertilizer-to-water map:
+49 53 8
+0 11 42
+42 0 7
+57 7 4
+
+water-to-light map:
+88 18 7
+18 25 70
+
+light-to-temperature map:
+45 77 23
+81 45 19
+68 64 13
+
+temperature-to-humidity map:
+0 69 1
+1 0 69
+
+humidity-to-location map:
+60 56 37
+56 93 4
+}
+
+class Entry(src :: NonnegInt, dest :: NonnegInt, length :: NonnegInt):
+  method map_value(v :: NonnegInt) :: False || NonnegInt:
+    def d = v - src
+    if 0 <= d && d < length
+    | d + dest
+    | #false
+
+def map_name_order:
+  ["seed", "soil", "fertilizer", "water",
+   "light", "temperature", "humidity", "location"]
+
+def map_order:
+  for List:
+    each:
+      src: map_name_order
+      dest: map_name_order.rest
+    [src, dest]
+
+class Configuration(seeds :: List.of(Int),
+                    maps :: Map.of(List.of(String), List.of(Entry))):
+  export from_parse
+  fun from_parse(seeds, maps_list :: List):
+    def maps:
+      for Map:
+        each [src, dest, entries]: maps_list
+        values([src, dest], entries)
+    Configuration(seeds, maps)
+
+  method map_layer_value(entries :: List.of(Entry), v0 :: NonnegInt):
+    for values(v = v0):
+      each e: entries
+      def handled = e.map_value(v0)
+      skip_when !handled
+      final_when handled
+      handled
+
+  method map_value(v0 :: NonnegInt) :: NonnegInt:
+    for values(v = v0):
+      each n: map_order
+      def m = maps[n]
+      map_layer_value(m, v)
+
+  method find_min_location():
+    for values(v = #false):
+      each s: seeds
+      def loc = map_value(s)
+      cond
+      | !v: loc
+      | v < loc: v
+      | ~else: loc
+
+def integer_list_p:
+  p.many1(p.try(p.parse_sequence:
+                  p.spaces
+                  p.integer))
+
+def name_p:
+  p.parse_sequence:
+    cs = p.many1(p.satisfy(Char.is_alphabetic))
+    p.pure((base.#{list->string}(cs) :~ ReadableString).to_string())
+
+def initial_seeds_p:
+  p.parse_sequence:
+    p.string("seeds:")
+    integer_list_p
+
+def mapping_entry_p:
+  p.parse_sequence:
+    p.spaces
+    dest = p.integer
+    p.spaces
+    src = p.integer
+    p.spaces
+    length = p.integer
+    p.pure(Entry(src, dest, length))
+
+def map_p:
+  p.parse_sequence:
+    p.spaces
+    src = name_p
+    p.string("-to-")
+    dest = name_p
+    p.string(" map:")
+    mapping_entries = p.many1(p.try(mapping_entry_p))
+    p.pure([src, dest, mapping_entries])
+
+def seed_maps_p:
+  p.parse_sequence:
+    seeds = initial_seeds_p
+    maps = p.many1(p.try(map_p))
+    p.pure(Configuration.from_parse(seeds, maps))
+
+fun run1(input):
+  def values(config :~ Configuration, _rest):
+    p.parse(seed_maps_p, p.string_to_list(input))
+  config.find_min_location()
+
+check:
+  run1(test_input) ~is 35
+
+module part1:
+  run1(aoc.fetch_input(aoc.find_session(), 2023, 5))
