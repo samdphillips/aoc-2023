@@ -70,6 +70,13 @@ class Configuration(seeds :: List.of(Int),
         values([src, dest], entries)
     Configuration(seeds, maps)
 
+  property seeds2 :~ List:
+    def k = seeds.length() / 2
+    for List:
+      each i: 0..k
+      def j = i * 2
+      [seeds[j], seeds[j+1]]
+
   method map_layer_value(entries :: List.of(Entry), v0 :: NonnegInt):
     for values(v = v0):
       each e: entries
@@ -84,14 +91,23 @@ class Configuration(seeds :: List.of(Int),
       def m = maps[n]
       map_layer_value(m, v)
 
+  fun min(a, b):
+    cond
+    | !a: b
+    | a < b: a
+    | ~else: b
+
   method find_min_location():
     for values(v = #false):
       each s: seeds
-      def loc = map_value(s)
-      cond
-      | !v: loc
-      | v < loc: v
-      | ~else: loc
+      min(v, map_value(s))
+
+  // brute force ...
+  method find_min_location2():
+    for values(v = #false):
+      each [i, j]: seeds2
+      each s: i..(i+j-1)
+      min(v, map_value(s))
 
 def integer_list_p:
   p.many1(p.try(p.parse_sequence:
@@ -144,3 +160,14 @@ check:
 
 module part1:
   run1(aoc.fetch_input(aoc.find_session(), 2023, 5))
+
+fun run2(input):
+  def values(config :~ Configuration, _rest):
+    p.parse(seed_maps_p, p.string_to_list(input))
+  config.find_min_location2()
+
+check:
+  run2(test_input) ~is 46
+
+module part2:
+  run2(aoc.fetch_input(aoc.find_session(), 2023, 5))
