@@ -33,3 +33,9 @@ module part1:
     * calculate_choices(85, 1412)
     * calculate_choices(75, 1257)
     * calculate_choices(82, 1410)
+
+check:
+  calculate_choices(71530, 940200) ~is 71503
+
+module part2:
+  calculate_choices(46857582, 208141212571410)
