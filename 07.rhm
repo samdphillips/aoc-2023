@@ -78,10 +78,14 @@ class Hand(cards :: List.of(PosInt),
 
   constructor (cards :: List.of(PosInt), bid :: PosInt):
     def counts :~ Map:
-      for values(counts = {}):
+      for values(counts = {1: 0}):
         each c: cards
         counts ++ { c: counts.get(c, 0) + 1 }
-    def hand_type: counts.values().sort(math.greater)
+    let Map{1: num_jokers, &counts}: counts
+    def hand_type:
+      match counts.values().sort(math.greater)
+      | []: [num_jokers]
+      | [a, &rest]: List.cons(a + num_jokers, rest)
     super(cards, bid, hand_type)
 
   property hand_type_name :: Symbol:
@@ -154,19 +158,30 @@ fun line_p(j_value):
 fun input_p(j_value):
   p.many1(line_p(j_value))
 
-fun run1(input):
-  def values(hands :: List.of(Hand), []):
-    p.parse_string(input_p(11), input)
-  let hands :~ List.of(Hand):
-    hands.sort(Hand.less)
-  for values(sum = 0):
-    each:
-      h: hands
-      i: 1..
-    sum + i * h.bid
+fun make_run(j_value):
+  fun (input):
+    def values(hands :: List.of(Hand), []):
+      p.parse_string(input_p(j_value), input)
+    let hands :~ List.of(Hand):
+      hands.sort(Hand.less)
+    for values(sum = 0):
+      each:
+        h: hands
+        i: 1..
+      sum + i * h.bid
+
+def run1 = make_run(11)
 
 check:
   run1(test_input) ~is 6440
 
 module part1:
   run1(aoc.fetch_input(aoc.find_session(), 2023, 7))
+
+def run2 = make_run(1)
+
+check:
+  run2(test_input) ~is 5905
+
+module part2:
+  run2(aoc.fetch_input(aoc.find_session(), 2023, 7))
