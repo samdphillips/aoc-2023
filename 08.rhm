@@ -1,6 +1,7 @@
 #lang rhombus/static/and_meta
 
 import:
+  lib("racket/base.rkt")
   "util/advent_of_code.rhm" as aoc
   "util/misc.rhm" as util
   "util/parsec.rhm" as p
@@ -35,17 +36,30 @@ annot.macro 'Direction':
 
 class DesertMap(directions :: Array.of(Direction),
                 nodes :: Map.of(String, Pair.of(String, String))):
-  method measure_path():
-    def ndirs = directions.length()
-    def values(count, "ZZZ"):
-      for values(count = 0, node = "AAA"):
+
+  method is_final(s :~ String):
+    s[2] == #{#\Z}
+
+  method measure_path(start):
+    def values(count, _):
+      for values(count = 0, current = start):
         each i: 0..
-        break_when node == "ZZZ"
-        values(count + 1,
-               match directions[i mod ndirs]
-               | #'L: nodes[node].first
-               | #'R: nodes[node].rest)
+        break_when is_final(current)
+        values(count + 1, next_node(i, current))
     count
+
+  method measure_path2():
+    def counts:
+      for List:
+        each n :~ String: nodes.keys()
+        keep_when n[2] == #{#\A}
+        measure_path(n)
+    base.lcm(&counts)
+
+  method next_node(i :~ NonnegInt, node :~ String):
+    match directions[i mod directions.length()]
+    | #'L: nodes[node].first
+    | #'R: nodes[node].rest
 
 operator a_p <|> b_p:
   p.choice(a_p, b_p)
@@ -89,7 +103,7 @@ def input_p:
 
 fun run1(input):
   def values(m :~ DesertMap, []) = p.parse_string(input_p, input)
-  m.measure_path()
+  m.measure_path("AAA")
 
 check:
   run1(test_input1) ~is 2
@@ -97,3 +111,26 @@ check:
 
 module part1:
   run1(aoc.fetch_input(aoc.find_session(), 2023, 8))
+
+@util.example_input(test_input3){
+LR
+
+11A = (11B, XXX)
+11B = (XXX, 11Z)
+11Z = (11B, XXX)
+22A = (22B, XXX)
+22B = (22C, 22C)
+22C = (22Z, 22Z)
+22Z = (22B, 22B)
+XXX = (XXX, XXX)@("\n")
+}
+
+fun run2(input):
+  def values(m :~ DesertMap, []) = p.parse_string(input_p, input)
+  m.measure_path2()
+
+check:
+  run2(test_input3) ~is 6
+
+module part2:
+  run2(aoc.fetch_input(aoc.find_session(), 2023, 8))
